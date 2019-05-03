@@ -22,7 +22,7 @@ data {
   real<lower=0> SSSS[T, G, Q, K]; // number of responses (possibly non-integer)
   real beta_sign[Q, D];		  // sign restrictions on betas
   int unused_cut[Q, (K-1)];	  // indicates categories with no responses
-  int<lower=0,upper=1> evolving_alpha;
+  int<lower=0,upper=1> evolving_alpha[Q]; // indicates spatial and temporal variation in q
   int<lower=0> N_nonzero;
 }
 
@@ -63,10 +63,10 @@ transformed parameters {
   for (t in 1:T) {
     for (q in 1:Q) {
       for (k in 1:(K-1)) {
-        if (evolving_alpha == 0) {
+        if (evolving_alpha[q] == 0) {
 	        alpha[t, q][k] = raw_alpha[q, k] + alpha_drift[1][q]; // copy first period
 	      }
-	      if (evolving_alpha == 1) {
+	      if (evolving_alpha[q] == 1) {
       	  // implies alpha[t,q][k] ~ N(alpha[t-1, q][k], sd_alpha_evolve)
       	  alpha[t, q][k] = raw_alpha[q, k] + alpha_drift[t][q];
       	}
