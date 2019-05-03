@@ -53,7 +53,6 @@ transformed parameters {
   vector[D] sd_raw_bar_theta_evolve;   // transition SD of theta
   real sd_alpha_evolve;	       // transition SD of alpha
   cov_matrix[D] Sigma_theta;   // diagonal matrix of within-group variances
-  vector[D] mean_raw_bar_theta;
   vector[D] sd_raw_bar_theta;
   // Assignments
   sd_theta = sd_theta_N01 .* sqrt(sd_theta_IG); // sd_theta ~ cauchy(0, 1);
@@ -94,14 +93,12 @@ transformed parameters {
       }
     }
   }
-  // Identify location and scale
+  // Identify scale
   for (d in 1:D) {
-    mean_raw_bar_theta[d] = mean(to_matrix(raw_bar_theta[1:T, 1:G, d]));
     sd_raw_bar_theta[d] = sd(to_matrix(raw_bar_theta[1:T, 1:G, d]));
     for (t in 1:T) {
       for (g in 1:G) {
-      	bar_theta[t, g, d] = (raw_bar_theta[t, g, d] - mean_raw_bar_theta[d])
-      	  ./ sd_raw_bar_theta[d];
+      	bar_theta[t, g, d] = inv_logit(raw_bar_theta[t, g, d]);
       }
     }
   }
